@@ -1,0 +1,8 @@
+img#profile_pic {
+    max-width: 200px;
+}
+
+div#tweet_message{
+    font-size: 14px;
+    font-weight: bold;
+}

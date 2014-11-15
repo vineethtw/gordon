@@ -63,5 +63,16 @@ eventSource.onmessage = function(event) {
         $(tweet_objects[random_index].identifier()).trigger('click');
     }, 8000);
 
+    var container = document.querySelector('#tweet_objects');
+    imagesLoaded(container, function(){
+        var pckry = new Masonry( container, {
+            // options
+            itemSelector: '.profile_pic',
+            gutter: 1
+        });
+    });
+
+
+
 
 };

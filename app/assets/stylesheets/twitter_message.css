@@ -3,7 +3,7 @@ img.profile_pic {
 }
 
 img.greyed_out {
-    -webkit-filter: opacity(20%) contrast(100%) grayscale(100%);
+    -webkit-filter: opacity(20%) contrast(100%) grayscale(80%);
 }
 
 img.hovered{
@@ -19,4 +19,9 @@ div.tooltip_popup{
     color: whitesmoke;
     font-family: Helvetica, Arial, Sans-Serif;
     max-width: 400px;
+}
+
+div#tweet_objects{
+    margin-left:80px;
+    margin-top:60px;
 }

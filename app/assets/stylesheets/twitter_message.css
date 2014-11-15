@@ -1,18 +1,21 @@
 img.profile_pic {
-    max-width: 200px;
+    max-width: 250px;
 }
 
-div#tweet_message{
-    font-size: 14px;
-    font-weight: bold;
+img.greyed_out {
+    -webkit-filter: opacity(20%) contrast(100%) grayscale(100%);
+}
+
+img.hovered{
+    border-width: 2px;
 }
 
 div.tooltip_popup{
     padding:30px;
     background-color: steelblue;
     box-shadow: 0 0 5px rgba(0,0,0,.75);
-    font-size: 18pt;
+    font-size: 22pt;
     color: whitesmoke;
     font-family: Verdana, Arial, Helvetica, sans-serif;
-    max-width: 450px;
+    max-width: 400px;
 }

@@ -24,7 +24,7 @@ function TweetDisplayObject(tweet){
 
         $(String.format("#profile_pic_{0}", tweet.id)).jBox('Tooltip',{
             content: $(String.format('#{0}', tweet.id)),
-            animation: 'flip',
+            animation: 'zoomIn',
             onOpen: function(){
                 $(String.format("#profile_pic_{0}", tweet.id)).removeClass("greyed_out");
                 $(String.format("#profile_pic_{0}", tweet.id)).addClass("hovered");
@@ -33,8 +33,13 @@ function TweetDisplayObject(tweet){
             onClose: function(){
                 $(String.format("#profile_pic_{0}", tweet.id)).addClass("greyed_out");
                 $(String.format("#profile_pic_{0}", tweet.id)).removeClass("hovered");
-            }
+            },
+            trigger: 'click'
         });
+    };
+
+    this.identifier = function(){
+        return String.format("#profile_pic_{0}", tweet.id);
     }
 }
 
@@ -43,12 +48,20 @@ var eventSource = new EventSource("http://localhost:3000/tweets/search");
 eventSource.onmessage = function(event) {
     $('#tweet_objects').empty();
     var tweets = convert_to_objects(event.data);
+    tweet_objects = []
     $.each(tweets, function(index, tweet){
-        new TweetDisplayObject(tweet).as_html();
+        var tweet_object = new TweetDisplayObject(tweet);
+        tweet_objects.push(tweet_object);
+        tweet_object.as_html();
     });
 
     eventSource.close();
 
+    setInterval(function(){
+        $('img.profile_pic.hovered').trigger('click');
+        var random_index = Math.floor(Math.random() * tweet_objects.length);
+        $(tweet_objects[random_index].identifier()).trigger('click');
+    }, 8000);
 
 
 };

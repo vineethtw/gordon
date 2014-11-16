@@ -65,10 +65,10 @@ eventSource.onmessage = function(event) {
 
     var container = document.querySelector('#tweet_objects');
     imagesLoaded(container, function(){
-        var pckry = new Masonry( container, {
+        var masonry = new Masonry( container, {
             // options
             itemSelector: '.profile_pic',
-            gutter: 1
+            gutter: 0
         });
     });
 

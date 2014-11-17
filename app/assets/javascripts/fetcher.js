@@ -6,13 +6,34 @@ function Tweet(id, message, profile_pic, media_url){
     self.media_url = media_url;
 }
 
-function convert_to_objects(tweet_data){
-    var tweets_on_screen = [];
-    $.each($.parseJSON(tweet_data), function(index, tweet){
-        tweets_on_screen.push(new Tweet(tweet["id"], tweet["message"], tweet["profile_image_uri"], tweet["media_uris"]));
+function TweetCollection(raw_tdata) {
+    var self = this;
+
+    self._tweets = []
+    $.each($.parseJSON(raw_tdata), function(index, tweet){
+        self._tweets.push(new Tweet(tweet["id"], tweet["message"], tweet["profile_image_uri"], tweet["media_uris"]));
     });
-    return tweets_on_screen;
+
+
+    self.tweets = function(){
+        return self._tweets;
+    }
+
+    self.get_displayables = function(){
+        var tweet_objects = [];
+        $.each(self._tweets, function(index, tweet){
+            var tweet_object = new TweetDisplayObject(tweet);
+            tweet_objects.push(tweet_object);
+        });
+        return tweet_objects;
+    }
+
+    self.get_random_displayable_tweet = function(){
+        var random_index = Math.floor(Math.random() * self._tweets.length);
+        return self.get_displayables()[random_index];
+    }
 }
+
 
 function TweetDisplayObject(tweet){
     this.as_html = function(){
@@ -51,18 +72,15 @@ var eventSource = new EventSource("http://localhost:3000/tweets/search");
 
 eventSource.onmessage = function(event) {
     $('#tweet_objects').empty();
-    var tweets = convert_to_objects(event.data);
-    tweet_objects = []
-    $.each(tweets, function(index, tweet){
-        var tweet_object = new TweetDisplayObject(tweet);
-        tweet_objects.push(tweet_object);
-        tweet_object.as_html();
-    });
+    var tweetCollection = new TweetCollection(event.data)
+    $.each(tweetCollection.get_displayables(), function(i, t_d) {t_d.as_html()});
+
+    eventSource.close();
+
 
     setInterval(function(){
         $('img.profile_pic.hovered').trigger('click');
-        var random_index = Math.floor(Math.random() * tweet_objects.length);
-        $(tweet_objects[random_index].identifier()).trigger('click');
+        $(tweetCollection.get_random_displayable_tweet().identifier()).trigger('click');
     }, 8000);
 
     var container = document.querySelector('#tweet_objects');

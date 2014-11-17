@@ -8,7 +8,7 @@ class TweetsController < ApplicationController
     response.headers['Content-Type'] = 'text/event-stream'
     begin
       loop do
-        recent_tweets =  tweets.recent_tweets('vodqa', number_of_results = 30)
+        recent_tweets =  tweets.recent_tweets('thoughtworks', number_of_results = 40)
         response.stream.write("data: %s \n\n" % (recent_tweets.to_json))
         sleep 10
       end

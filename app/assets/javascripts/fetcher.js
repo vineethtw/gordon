@@ -19,7 +19,12 @@ function TweetDisplayObject(tweet){
         var image = String.format('<img class="profile_pic greyed_out" id="profile_pic_{0}" src="{1}"/>', tweet.id, tweet.profile_pic);
         var tooltip = String.format('<div style="display: none" class="tooltip_popup" id="{0}" >{1}</div>', tweet.id, tweet.message);
 
-        $(image).appendTo($('#tweet_objects'));
+        var random_size = Math.floor(Math.random() * 3);
+        $(image).addClass(new Array('p_small', 'p_medium', 'p_large')[random_size]).appendTo('#tweet_objects');
+        if (Math.random() * 2 > 1){
+            $(image).addClass('p_micro').appendTo('#tweet_objects');
+        }
+
         $(tooltip).appendTo($('#tweet_objects'));
 
         $(String.format("#profile_pic_{0}", tweet.id)).jBox('Tooltip',{
@@ -28,7 +33,6 @@ function TweetDisplayObject(tweet){
             onOpen: function(){
                 $(String.format("#profile_pic_{0}", tweet.id)).removeClass("greyed_out");
                 $(String.format("#profile_pic_{0}", tweet.id)).addClass("hovered");
-
             },
             onClose: function(){
                 $(String.format("#profile_pic_{0}", tweet.id)).addClass("greyed_out");
@@ -55,8 +59,6 @@ eventSource.onmessage = function(event) {
         tweet_object.as_html();
     });
 
-    eventSource.close();
-
     setInterval(function(){
         $('img.profile_pic.hovered').trigger('click');
         var random_index = Math.floor(Math.random() * tweet_objects.length);
@@ -65,10 +67,9 @@ eventSource.onmessage = function(event) {
 
     var container = document.querySelector('#tweet_objects');
     imagesLoaded(container, function(){
-        var masonry = new Masonry( container, {
-            // options
+        new Packery(container, {
             itemSelector: '.profile_pic',
-            gutter: 0
+            gutter: 2
         });
     });
 

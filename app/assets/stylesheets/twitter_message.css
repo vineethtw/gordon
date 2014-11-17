@@ -1,8 +1,16 @@
-img.profile_pic {
-    max-width: 250px;
-    border-radius: 15px;
+img.p_large {
+    max-width: 300px;
+}
+img.p_medium {
+    max-width: 200px;
+}
+img.p_small {
+    max-width: 140px;
 }
 
+img.p_micro {
+    max-width: 70px;
+}
 img.greyed_out {
     -webkit-filter: opacity(40%) contrast(100%) grayscale(95%);
     transform: scale(0.99);
@@ -16,19 +24,26 @@ img.hovered{
     border-width: 10pt;
 }
 
+.show_no_images img{
+    display: none;
+}
+
 div.tooltip_popup{
     padding:30px;
     background-color: #000000;
-    /*box-shadow: 0 0 5px rgba(0,0,0,.75);*/
     font-size: 26pt;
     color: whitesmoke;
     font-family: Helvetica, Arial, Sans-Serif;
-    max-width: 400px;
+    max-width: 500px;
 }
 
 .jBox-container {
     background-color: #000000;
     border-radius: 15px;
+}
+
+.jBox-pointer-bottom:after{
+    background-color: #000000;
 }
 div#tweet_objects{
     margin-left:80px;

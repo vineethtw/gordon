@@ -34,16 +34,39 @@ function TweetCollection(raw_tdata) {
     }
 }
 
-function Container(id)    {
+function TweetContainer(id, selector)    {
     var self = this;
 
     self._container = $(id);
 
-    self.append = function(elements) {
-        $.each(elements, function(i, element){
-           element.appendTo(id);
+    self.init = function() {
+        $(id).packery({
+            itemSelector: selector,
+            gutter: 1
         });
     }
+
+    self.append = function(element, toPackery) {
+        element.appendTo(id);
+        if (toPackery == true) {
+            $(element).hide();
+            $(id).imagesLoaded(function () {
+                $(element).show();
+                $(id).packery('appended', element);
+            });
+        }
+    }
+
+    self.hide = function(){
+        $(id).addClass('show_no_images');
+    }
+
+    self.show = function(){
+        $(id).removeClass('show_no_images')
+    }
+
+    self.init();
+
 }
 
 
@@ -52,13 +75,14 @@ function TweetDisplayObject(tweet){
 
     this.render_to = function(container)    {
         var image = String.format('<img class="picture_cell greyed_out {2}" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.picture_cell, self.random_size_style());
-        $(image).appendTo(container);
+        container.append($(image), true);
         self.create_tooltip(tweet, $(image).prop("id"), container);
+
     }
 
     self.create_tooltip = function(tweet, picture_id, container)  {
         var tooltip = String.format('<div style="display: none" class="tooltip_popup" id="tooltip_{0}" >{1}</div>', tweet.id, tweet.message);
-        $(tooltip).appendTo(container);
+        container.append($(tooltip));
 
         $(String.format("#{0}", picture_id)).jBox('Tooltip',{
             content: $(String.format('#tooltip_{0}', tweet.id)),
@@ -80,33 +104,6 @@ function TweetDisplayObject(tweet){
         return new Array('p_small', 'p_medium', 'p_large')[random_size];
     }
 
-    this.as_html = function(){
-        var image = String.format('<img class="picture_cell greyed_out" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.picture_cell);
-        var tooltip = String.format('<div style="display: none" class="tooltip_popup" id="{0}" >{1}</div>', tweet.id, tweet.message);
-
-        var random_size = Math.floor(Math.random() * 3);
-        $(image).addClass(new Array('p_small', 'p_medium', 'p_large')[random_size]).appendTo('#tweet_objects');
-        if (Math.random() * 2 > 1){
-            $(image).addClass('p_micro').appendTo('#tweet_objects');
-        }
-
-        $(tooltip).appendTo($('#tweet_objects'));
-
-        $(String.format("#picture_cell_{0}", tweet.id)).jBox('Tooltip',{
-            content: $(String.format('#{0}', tweet.id)),
-            animation: 'zoomIn',
-            onOpen: function(){
-                $(String.format("#picture_cell_{0}", tweet.id)).removeClass("greyed_out");
-                $(String.format("#picture_cell_{0}", tweet.id)).addClass("hovered");
-            },
-            onClose: function(){
-                $(String.format("#picture_cell_{0}", tweet.id)).addClass("greyed_out");
-                $(String.format("#picture_cell_{0}", tweet.id)).removeClass("hovered");
-            },
-            trigger: 'click'
-        });
-    };
-
     this.identifier = function(){
         return String.format("#picture_cell_{0}", tweet.id);
     }
@@ -117,7 +114,8 @@ var eventSource = new EventSource("http://localhost:3000/tweets/search");
 eventSource.onmessage = function(event) {
     $('#tweet_objects').empty();
     var tweetCollection = new TweetCollection(event.data)
-    $.each(tweetCollection.get_displayables(), function(i, t_d) {t_d.render_to('#tweet_objects')});
+    var tweetContainer = new TweetContainer('#tweet_objects', '.picture_cell');
+    $.each(tweetCollection.get_displayables(), function(i, t_d) {t_d.render_to(tweetContainer)});
 
     eventSource.close();
 
@@ -128,12 +126,9 @@ eventSource.onmessage = function(event) {
     }, 8000);
 
     var container = document.querySelector('#tweet_objects');
-    imagesLoaded(container, function(){
-        new Packery(container, {
-            itemSelector: '.picture_cell',
-            gutter: 2
-        });
-    });
+    //imagesLoaded(container, function(){
+    //    tweetContainer.layout();
+    //});
 
 
 

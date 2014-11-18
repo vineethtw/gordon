@@ -28,6 +28,10 @@ img.hovered{
     border-width: 10pt;
 }
 
+.show_no_images img{
+    display: none;
+}
+
 div.tooltip_popup{
     padding:30px;
     background-color: #000000;

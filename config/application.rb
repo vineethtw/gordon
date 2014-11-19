@@ -28,6 +28,7 @@ module Gordon
         ENV[key.to_s] = value
 
       end if File.exists?(env_file)
+      OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
     end
 
   end

@@ -1,19 +1,15 @@
 img.p_large {
     max-width: 300px;
-    border-radius: 15px;
 }
 img.p_medium {
     max-width: 200px;
-    border-radius: 15px;
 }
 img.p_small {
     max-width: 140px;
-    border-radius: 15px;
 }
 
 img.p_micro {
     max-width: 70px;
-    border-radius: 15px;
 }
 img.greyed_out {
     -webkit-filter: opacity(40%) contrast(100%) grayscale(95%);

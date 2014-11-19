@@ -46,25 +46,20 @@ function TweetContainer(id, selector)    {
         });
     }
 
-    self.append = function(element, toPackery) {
+    self.append = function(element) {
         element.appendTo(id);
-        if (toPackery == true) {
-            $(element).hide();
-            $(id).imagesLoaded(function () {
-                $(element).show();
-                $(id).packery('appended', element);
-            });
-        }
     }
 
-    self.hide = function(){
-        $(id).addClass('show_no_images');
-    }
+    self.appendToLayout = function (element) {
+        self.append(element);
+        $(element).hide();
+        $(id).imagesLoaded(function () {
+            $(element).show();
+            $(id).packery('appended', element);
+        });
 
-    self.show = function(){
-        $(id).removeClass('show_no_images')
     }
-
+    
     self.init();
 
 }
@@ -75,7 +70,7 @@ function TweetDisplayObject(tweet){
 
     this.render_to = function(container)    {
         var image = String.format('<img class="picture_cell greyed_out {2}" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.picture_cell, self.random_size_style());
-        container.append($(image), true);
+        container.appendToLayout($(image));
         self.create_tooltip(tweet, $(image).prop("id"), container);
 
     }
@@ -113,8 +108,8 @@ var eventSource = new EventSource("http://localhost:3000/tweets/search");
 
 eventSource.onmessage = function(event) {
     $('#tweet_objects').empty();
-    var tweetCollection = new TweetCollection(event.data)
     var tweetContainer = new TweetContainer('#tweet_objects', '.picture_cell');
+    var tweetCollection = new TweetCollection(event.data)
     $.each(tweetCollection.get_displayables(), function(i, t_d) {t_d.render_to(tweetContainer)});
 
     eventSource.close();
@@ -124,13 +119,5 @@ eventSource.onmessage = function(event) {
         $('img.picture_cell.hovered').trigger('click');
         $(tweetCollection.get_random_displayable_tweet().identifier()).trigger('click');
     }, 8000);
-
-    var container = document.querySelector('#tweet_objects');
-    //imagesLoaded(container, function(){
-    //    tweetContainer.layout();
-    //});
-
-
-
 
 };

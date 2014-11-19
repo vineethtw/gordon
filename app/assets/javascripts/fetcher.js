@@ -64,29 +64,32 @@ function TweetContainer(id, selector)    {
 
 }
 
-
-function TweetDisplayObject(tweet){
+function GordonDisplayStrategy(container) {
     var self = this;
 
-    this.render_to = function(container)    {
+    this.render = function (tweet) {
         var image = String.format('<img class="picture_cell greyed_out {2}" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.picture_cell, self.random_size_style());
         container.appendToLayout($(image));
         self.create_tooltip(tweet, $(image).prop("id"), container);
-
     }
 
-    self.create_tooltip = function(tweet, picture_id, container)  {
+    self.random_size_style = function () {
+        var random_size = Math.floor(Math.random() * 3);
+        return new Array('p_small', 'p_medium', 'p_large')[random_size];
+    }
+
+    self.create_tooltip = function (tweet, picture_id, container) {
         var tooltip = String.format('<div style="display: none" class="tooltip_popup" id="tooltip_{0}" >{1}</div>', tweet.id, tweet.message);
         container.append($(tooltip));
 
-        $(String.format("#{0}", picture_id)).jBox('Tooltip',{
+        $(String.format("#{0}", picture_id)).jBox('Tooltip', {
             content: $(String.format('#tooltip_{0}', tweet.id)),
             animation: 'zoomIn',
-            onOpen: function(){
+            onOpen: function () {
                 $(String.format("#{0}", picture_id)).removeClass("greyed_out");
                 $(String.format("#{0}", picture_id)).addClass("hovered");
             },
-            onClose: function(){
+            onClose: function () {
                 $(String.format("#{0}", picture_id)).addClass("greyed_out");
                 $(String.format("#{0}", picture_id)).removeClass("hovered");
             },
@@ -94,13 +97,36 @@ function TweetDisplayObject(tweet){
         });
     }
 
-    self.random_size_style = function() {
-        var random_size = Math.floor(Math.random() * 3);
-        return new Array('p_small', 'p_medium', 'p_large')[random_size];
+    this.bringToFront = function(identifier)  {
+        $(identifier).trigger("click");
+    }
+
+}
+
+function AriesDisplayStrategy(container){
+    var self = this;
+
+    this.render = function() {
+        var image = String.format('<img class="picture_cell greyed_out {2}" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.picture_cell, self.random_size_style());
+        container.appendToLayout($(image));
+    }
+
+
+}
+
+function TweetDisplayObject(tweet){
+    var self = this;
+
+    this.render_using = function(displayStrategy)    {
+       displayStrategy.render(tweet)
     }
 
     this.identifier = function(){
         return String.format("#picture_cell_{0}", tweet.id);
+    }
+
+    this.bringToFront = function(displayStrategy)  {
+        displayStrategy.bringToFront(self.identifier());
     }
 }
 
@@ -110,14 +136,15 @@ eventSource.onmessage = function(event) {
     $('#tweet_objects').empty();
     var tweetContainer = new TweetContainer('#tweet_objects', '.picture_cell');
     var tweetCollection = new TweetCollection(event.data)
-    $.each(tweetCollection.get_displayables(), function(i, t_d) {t_d.render_to(tweetContainer)});
+    var displayStrategy = new GordonDisplayStrategy(tweetContainer);
+    $.each(tweetCollection.get_displayables(), function(i, t_d) {t_d.render_using(displayStrategy)});
 
     eventSource.close();
 
 
     setInterval(function(){
         $('img.picture_cell.hovered').trigger('click');
-        $(tweetCollection.get_random_displayable_tweet().identifier()).trigger('click');
+        tweetCollection.get_random_displayable_tweet().bringToFront(displayStrategy);
     }, 8000);
 
 };

@@ -43,3 +43,5 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin]
 gem 'twitter'
 gem 'puma'
 gem 'rb-fsevent'
+
+gem 'rails_12factor', group: :production

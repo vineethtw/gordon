@@ -172,7 +172,7 @@ function TweetDisplayObject(tweet){
     }
 }
 
-var eventSource = new EventSource("https://tranquil-lake-7074.herokuapp.com/tweets/search");
+var eventSource = new EventSource("/tweets/search");
 
 eventSource.onmessage = function(event) {
     $('#tweet_objects').empty();

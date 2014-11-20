@@ -7,14 +7,17 @@ function Tweet(id, message, picture_cell, media_url, user){
     self.user = user;
 }
 
-function TweetCollection(raw_tdata) {
+function TweetCollection() {
     var self = this;
 
-    self._tweets = []
-    $.each($.parseJSON(raw_tdata), function(index, tweet){
-        self._tweets.push(new Tweet(tweet["id"], tweet["message"], tweet["profile_image_uri"], tweet["media_uris"], tweet['user']));
-    });
+    self._tweets = [];
 
+    self.add_from = function(raw_data){
+        $.each($.parseJSON(raw_data), function(index, tweet){
+            var new_tweet = new Tweet(tweet["id"], tweet["message"], tweet["profile_image_uri"], tweet["media_uris"], tweet['user']);
+            self._tweets.push(new_tweet);
+        });
+    }
 
     self.tweets = function(){
         return self._tweets;
@@ -31,7 +34,9 @@ function TweetCollection(raw_tdata) {
 
     self.get_random_displayable_tweet = function(){
         var random_index = Math.floor(Math.random() * self._tweets.length);
-        return self.get_displayables()[random_index];
+        next_tweet = self._tweets[random_index];
+        self._tweets.splice(random_index, 1);
+        return (new TweetDisplayObject(next_tweet));
     }
 }
 
@@ -51,15 +56,21 @@ function TweetContainer(id, selector)    {
         element.appendTo(id);
     }
 
-    self.appendToLayout = function (element) {
+    self.appendToLayout = function (element, callback) {
         self.append(element);
         $(element).hide();
         $(id).imagesLoaded(function () {
             $(element).show();
             $(id).packery('appended', element);
+            if (callback!=null) {
+                callback(element);
+            }
         });
     }
-    
+
+    self.remove = function(element) {
+        self._container.packery('remove', element);
+    }
     self.init();
 
 }
@@ -69,7 +80,7 @@ function GordonDisplayStrategy(container) {
 
     this.render = function (tweet) {
         var image = String.format('<img class="picture_cell greyed_out {2}" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.picture_cell, self.random_size_style());
-        container.appendToLayout($(image));
+        container.appendToLayout($(image), function(){$(image).hide();});
         self.create_tooltip(tweet, $(image).prop("id"), container);
     }
 
@@ -109,17 +120,22 @@ function GordonDisplayStrategy(container) {
 
 function AriesDisplayStrategy(container){
     var self = this;
+    self.total_display_count = 0;
+
     self.last_opened_tweet = null;
+    self.displayed_tweets = [];
+
 
 
     this.render = function(tweet) {
         var image = String.format('<img class="picture_cell {2}" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.picture_cell, self.random_size_style());
-        container.appendToLayout($(image));
+        container.appendToLayout($(image), function(image){$(image).hide();});
     }
 
     this.bringToFront = function(displayableTweet){
         var html = '<div id="modal_source"><img id="aries_profile_pic" src="{0}"/><div id="tweeter">@{1}</div><div id="aries_tweet">{2}</div></div>';
         container.append($(String.format(html, displayableTweet.profile_pic_url, displayableTweet.user.name, displayableTweet.message)));
+
         var modal = new jBox("Modal", {
             content: $('#modal_source'),
             overlay: false,
@@ -129,7 +145,6 @@ function AriesDisplayStrategy(container){
             animation: 'flip',
             addClass: 'tweetModal'
         });
-//        $(displayableTweet.identifier()).removeClass('greyed_out');
         modal.open();
         last_opened_tweet = modal;
     }
@@ -137,8 +152,8 @@ function AriesDisplayStrategy(container){
     this.close = function (displayableTweet){
       last_opened_tweet.close();
       $('#modal_source').remove();
-//      $(displayableTweet.identifier()).addClass('greyed_out');
-
+      $(displayableTweet.identifier()).show();
+      self.displayed_tweets.push(displayableTweet);
     }
 
     self.random_size_style = function () {
@@ -153,7 +168,7 @@ function TweetDisplayObject(tweet){
     self.user = tweet.user;
     self.message =tweet.message;
     self.profile_pic_url = tweet.picture_cell;
-
+    self.shown = false;
 
     this.render_using = function(displayStrategy)    {
        displayStrategy.render(tweet)
@@ -165,6 +180,7 @@ function TweetDisplayObject(tweet){
 
     this.bringToFront = function(displayStrategy)  {
         displayStrategy.bringToFront(self);
+        self.shown = true;
     }
 
     this.close = function(displayStrategy)  {
@@ -173,15 +189,17 @@ function TweetDisplayObject(tweet){
 }
 
 var eventSource = new EventSource("/tweets/search");
+var tweetCollection = new TweetCollection();
 
 eventSource.onmessage = function(event) {
-    $('#tweet_objects').empty();
+    //$('#tweet_objects').empty();
+
     var tweetContainer = new TweetContainer('#tweet_objects', '.picture_cell');
-    var tweetCollection = new TweetCollection(event.data)
+    tweetCollection.add_from(event.data);
     var displayStrategy = new AriesDisplayStrategy(tweetContainer);
     $.each(tweetCollection.get_displayables(), function(i, t_d) {t_d.render_using(displayStrategy)});
 
-    eventSource.close();
+    //eventSource.close();
 
 
   var last_displayed_tweet =  tweetCollection.get_random_displayable_tweet()
@@ -191,6 +209,6 @@ eventSource.onmessage = function(event) {
         last_displayed_tweet.close(displayStrategy);
         last_displayed_tweet = tweetCollection.get_random_displayable_tweet();
         last_displayed_tweet.bringToFront(displayStrategy);
-    }, 10000);
+    }, 500);
 
 };

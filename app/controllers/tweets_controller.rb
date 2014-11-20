@@ -10,7 +10,7 @@ class TweetsController < ApplicationController
       loop do
         recent_tweets =  tweets.recent_tweets('thoughtworks', number_of_results = 40)
         response.stream.write("data: %s \n\n" % (recent_tweets.to_json))
-        sleep 10
+        sleep 15
       end
 
     rescue IOError

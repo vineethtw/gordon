@@ -22,5 +22,5 @@ test:
 
 production:
   <<: *default
-  adapter: pg
+  adapter: postgresql
   database_name: 'gordon_production'

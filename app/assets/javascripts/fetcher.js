@@ -248,7 +248,7 @@ function TweetDisplayObject(tweet){
 $(document).ready( function() {var tweetContainer = new TweetContainer('#tweet_objects', '.picture_cell');
     var tweetCollection = new TweetCollection()
     var displayStrategy = new AriesDisplayStrategy(tweetContainer);
-    var eventSource = new EventSource(String.format("/tweets/search?term={0}&count={1}",$('#search').data('term'), $('#search').data('count')));
+    var eventSource = new EventSource(String.format("/tweets/search?term={0}&count={1}&refresh={2}",$('#search').data('term'), $('#search').data('count'), $('#search').data('refresh')));
     var lastDisplayedTweet = null;
     var firstRun = true;
 
@@ -265,7 +265,7 @@ $(document).ready( function() {var tweetContainer = new TweetContainer('#tweet_o
                 lastDisplayedTweet.close(displayStrategy);
             }
         }
-    }, 5000);
+    }, parseInt($('#search').data('wait')));
 
     eventSource.onmessage = function(event) {
         //$('#tweet_objects').empty();

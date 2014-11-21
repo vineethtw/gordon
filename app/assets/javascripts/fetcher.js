@@ -26,23 +26,44 @@ function TweetCollection() {
         return self._tweets;
     }
 
-    self.get_displayables = function(){
+    self.get_displayables = function(min_length){
         var tweet_objects = [];
         $.each(self._tweets, function(index, tweet){
             var tweet_object = new TweetDisplayObject(tweet);
             tweet_objects.push(tweet_object);
         });
+        if (min_length != null) {
+            var current_length = tweet_objects.length;
+            for(var i= current_length; i < min_length; i++)    {
+                var filler_tweet = new TweetDisplayObject(self.get_random_tweet());
+                filler_tweet.isDirty = true;
+                tweet_objects.push(filler_tweet);
+            }
+        }
+
         return tweet_objects;
     }
 
     self.get_random_displayable_tweet = function(){
         var random_index = Math.floor(Math.random() * self._tweets.length);
-        return self.get_displayables()[random_index];
+        var to_return = self.get_displayables()[random_index];
+        self._tweets.splice(random_index, 1);
+        return to_return;
+    }
+
+    self.get_random_tweet = function(){
+        var random_index = Math.floor(Math.random() * self._tweets.length);
+        return self._tweets[random_index];
     }
 
     self.isNotEmpty = function() {
         return self._tweets.length != 0;
     }
+
+    self.length = function()    {
+        return self._tweets.length;
+    }
+
 }
 
 function TweetContainer(id, selector)    {
@@ -69,7 +90,16 @@ function TweetContainer(id, selector)    {
             $(id).packery('appended', element);
         });
     }
-    
+
+    self.removeFromLayout = function(element){
+        //$(id).packery('remove', element);
+        //self.init();
+    }
+
+    self.cleanUp = function(number){
+        $.each($('#unClean').slice(0, number), function(i, e){self.removeFromLayout(e);})
+    }
+
     self.init();
 
 }
@@ -122,8 +152,8 @@ function AriesDisplayStrategy(container){
     self.last_opened_tweet = null;
 
 
-    this.render = function(tweet) {
-        var image = String.format('<img class="picture_cell {2}" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.picture_cell, self.random_size_style());
+    this.render = function(tweet, shouldCleanUp) {
+        var image = String.format('<img class="picture_cell {2} {3}" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.picture_cell, self.random_size_style(), tweet.isDirty? "dirty": "");
         container.appendToLayout($(image));
     }
 
@@ -148,7 +178,6 @@ function AriesDisplayStrategy(container){
       last_opened_tweet.close();
       $('#modal_source').remove();
 //      $(displayableTweet.identifier()).addClass('greyed_out');
-
     }
 
     self.random_size_style = function () {
@@ -163,10 +192,10 @@ function TweetDisplayObject(tweet){
     self.user = tweet.user;
     self.message =tweet.message;
     self.profile_pic_url = tweet.picture_cell;
-
+    self.isDirty = false;
 
     this.render_using = function(displayStrategy)    {
-       displayStrategy.render(tweet)
+       displayStrategy.render(tweet);
     }
 
     this.identifier = function(){
@@ -189,6 +218,7 @@ $(document).ready( function() {var tweetContainer = new TweetContainer('#tweet_o
     var displayStrategy = new AriesDisplayStrategy(tweetContainer);
     var eventSource = new EventSource("/tweets/search");
     var lastDisplayedTweet = null;
+    var firstRun = true;
 
     setInterval(function () {
         if (tweetCollection.isNotEmpty()) {
@@ -206,7 +236,14 @@ $(document).ready( function() {var tweetContainer = new TweetContainer('#tweet_o
         new_tweets.add_from(event.data);
         tweetCollection.merge(new_tweets);
 
-        $.each(new_tweets.get_displayables(), function (i, t_d) {
+        var displayables = null;
+        if (firstRun==true){
+            displayables = new_tweets.get_displayables(40);
+        }
+        else {
+            displayables =new_tweets.get_displayables();
+        }
+        $.each(displayables, function (i, t_d) {
             t_d.render_using(displayStrategy)
         });
         eventSource.close();

@@ -175,11 +175,11 @@ function AriesDisplayStrategy(container){
     this.bringToFront = function(displayableTweet){
         if (displayableTweet.photo == null){
             var html = '<div id="modal_source"><img id="aries_profile_pic" src="{0}"/><div id="tweeter">@{1}</div><div id="aries_tweet">{2}</div></div>';
-            container.append($(String.format(html, displayableTweet.profile_pic_url, displayableTweet.user.name, displayableTweet.message)));
+            container.append($(String.format(html, displayableTweet.profile_pic_url, displayableTweet.user.screen_name, displayableTweet.message)));
         }
         else{
             var html = '<div id="modal_source"><img id="aries_profile_pic" src="{0}"/><div id="tweeter">@{1}</div><div id="aries_tweet">{2}</div><img class="aries_photo" src="{3}"/></div>';
-            container.append($(String.format(html, displayableTweet.profile_pic_url, displayableTweet.user.name, displayableTweet.message, displayableTweet.photo)));
+            container.append($(String.format(html, displayableTweet.profile_pic_url, displayableTweet.user.screen_name, displayableTweet.message, displayableTweet.photo)));
         }
 
         var modal = new jBox("Modal", {
@@ -246,6 +246,7 @@ function TweetDisplayObject(tweet){
 
 
 $(document).ready( function() {var tweetContainer = new TweetContainer('#tweet_objects', '.picture_cell');
+
     var tweetCollection = new TweetCollection()
     var displayStrategy = new AriesDisplayStrategy(tweetContainer);
     var eventSource = new EventSource(String.format("/tweets/search?term={0}&count={1}&refresh={2}",$('#search').data('term'), $('#search').data('count'), $('#search').data('refresh')));

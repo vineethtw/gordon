@@ -77,6 +77,10 @@ img.aries_photo{
     margin-top: 10px;
 }
 
+img.aries_container_photo{
+    max-width: 390px;
+}
+
 .tweetModal{
     background-color: #000000;
     color: lightslategray;

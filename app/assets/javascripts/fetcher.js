@@ -166,6 +166,10 @@ function AriesDisplayStrategy(container){
     this.render = function(tweet, shouldCleanUp) {
         var image = String.format('<img class="picture_cell {2} {3}" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.profile_pic_url, self.random_size_style(), tweet.isDirty? "dirty": "");
         container.appendToLayout($(image));
+        if (tweet.photo != null)    {
+            var picture = String.format('<img class="picture_cell dirty aries_container_photo" src="{0}"/>', tweet.photo);
+            container.appendToLayout($(picture));
+        }
     }
 
     this.bringToFront = function(displayableTweet){

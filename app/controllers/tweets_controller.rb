@@ -6,9 +6,11 @@ class TweetsController < ApplicationController
   def search
     tweets = ::Tweets.new
     response.headers['Content-Type'] = 'text/event-stream'
+    search_term = params[:term].blank? ? "xconf": params[:term]
+    count = params[:count].blank? ? 0 : params[:count].to_i
     begin
       loop do
-        recent_tweets =  tweets.recent_tweets('xconf', number_of_results = 40)
+        recent_tweets =  tweets.recent_tweets(search_term, number_of_results = count)
         response.stream.write("data: %s \n\n" % (recent_tweets.to_json))
         sleep 10
       end

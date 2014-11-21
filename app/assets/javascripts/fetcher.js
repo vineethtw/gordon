@@ -216,7 +216,7 @@ function TweetDisplayObject(tweet){
 $(document).ready( function() {var tweetContainer = new TweetContainer('#tweet_objects', '.picture_cell');
     var tweetCollection = new TweetCollection()
     var displayStrategy = new AriesDisplayStrategy(tweetContainer);
-    var eventSource = new EventSource("/tweets/search");
+    var eventSource = new EventSource(String.format("/tweets/search?term={0}&count={1}",$('#search').data('term'), $('#search').data('count')));
     var lastDisplayedTweet = null;
     var firstRun = true;
 
@@ -228,6 +228,11 @@ $(document).ready( function() {var tweetContainer = new TweetContainer('#tweet_o
             lastDisplayedTweet = tweetCollection.get_random_displayable_tweet();
             lastDisplayedTweet.bringToFront(displayStrategy);
         }
+        else{
+            if (lastDisplayedTweet !=null){
+                lastDisplayedTweet.close(displayStrategy);
+            }
+        }
     }, 2000);
 
     eventSource.onmessage = function(event) {
@@ -238,7 +243,7 @@ $(document).ready( function() {var tweetContainer = new TweetContainer('#tweet_o
 
         var displayables = null;
         if (firstRun==true){
-            displayables = new_tweets.get_displayables(40);
+            displayables = new_tweets.get_displayables($('#search').data('count'));
         }
         else {
             displayables =new_tweets.get_displayables();

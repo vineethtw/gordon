@@ -3,7 +3,11 @@ function Tweet(id, message, picture_cell, media_url, user){
     self.id = id;
     self.message = message;
     self.picture_cell = picture_cell;
-    self.media_url = media_url;
+    self.media_url = null;
+
+    if (media_url !=null && media_url.length>=1){
+        self.media_url = media_url[0];
+    }
     self.user = user;
 }
 
@@ -76,6 +80,10 @@ function TweetContainer(id, selector)    {
             itemSelector: selector,
             gutter: 1
         });
+    }
+
+    self.identifer = function() {
+        return id;
     }
 
     self.append = function(element) {
@@ -161,8 +169,15 @@ function AriesDisplayStrategy(container){
     }
 
     this.bringToFront = function(displayableTweet){
-        var html = '<div id="modal_source"><img id="aries_profile_pic" src="{0}"/><div id="tweeter">@{1}</div><div id="aries_tweet">{2}</div></div>';
-        container.append($(String.format(html, displayableTweet.profile_pic_url, displayableTweet.user.name, displayableTweet.message)));
+        if (displayableTweet.photo == null){
+            var html = '<div id="modal_source"><img id="aries_profile_pic" src="{0}"/><div id="tweeter">@{1}</div><div id="aries_tweet">{2}</div></div>';
+            container.append($(String.format(html, displayableTweet.profile_pic_url, displayableTweet.user.name, displayableTweet.message)));
+        }
+        else{
+            var html = '<div id="modal_source"><img id="aries_profile_pic" src="{0}"/><div id="tweeter">@{1}</div><div id="aries_tweet">{2}</div><img class="aries_photo" src="{3}"/></div>';
+            container.append($(String.format(html, displayableTweet.profile_pic_url, displayableTweet.user.name, displayableTweet.message, displayableTweet.photo)));
+        }
+
         var modal = new jBox("Modal", {
             content: $('#modal_source'),
             overlay: false,
@@ -173,7 +188,9 @@ function AriesDisplayStrategy(container){
             addClass: 'tweetModal'
         });
 //        $(displayableTweet.identifier()).removeClass('greyed_out');
-        modal.open();
+        $(container.identifer()).imagesLoaded(function(){
+            modal.open();
+        });
         last_opened_tweet = modal;
     }
 
@@ -197,6 +214,7 @@ function TweetDisplayObject(tweet){
     self.message =tweet.message;
     self.profile_pic_url = tweet.picture_cell;
     self.id =tweet.id;
+    self.photo = tweet.media_url;
 
     self.isDirty = false;
 

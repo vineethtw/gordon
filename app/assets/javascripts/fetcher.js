@@ -7,13 +7,19 @@ function Tweet(id, message, picture_cell, media_url, user){
     self.user = user;
 }
 
-function TweetCollection(raw_tdata) {
+function TweetCollection() {
     var self = this;
+    self._tweets = [];
 
-    self._tweets = []
-    $.each($.parseJSON(raw_tdata), function(index, tweet){
-        self._tweets.push(new Tweet(tweet["id"], tweet["message"], tweet["profile_image_uri"], tweet["media_uris"], tweet['user']));
-    });
+    self.add_from = function(raw_tdata) {
+        $.each($.parseJSON(raw_tdata), function (index, tweet) {
+            self._tweets.push(new Tweet(tweet["id"], tweet["message"], tweet["profile_image_uri"], tweet["media_uris"], tweet['user']));
+        });
+    }
+
+    self.merge = function(collection)   {
+        $.each(collection._tweets, function(i, t){self._tweets.push(t);});
+    }
 
 
     self.tweets = function(){
@@ -32,6 +38,10 @@ function TweetCollection(raw_tdata) {
     self.get_random_displayable_tweet = function(){
         var random_index = Math.floor(Math.random() * self._tweets.length);
         return self.get_displayables()[random_index];
+    }
+
+    self.isNotEmpty = function() {
+        return self._tweets.length != 0;
     }
 }
 
@@ -172,25 +182,41 @@ function TweetDisplayObject(tweet){
     }
 }
 
-var eventSource = new EventSource("/tweets/search");
 
-eventSource.onmessage = function(event) {
-    $('#tweet_objects').empty();
-    var tweetContainer = new TweetContainer('#tweet_objects', '.picture_cell');
-    var tweetCollection = new TweetCollection(event.data)
+
+$(document).ready( function() {var tweetContainer = new TweetContainer('#tweet_objects', '.picture_cell');
+    var tweetCollection = new TweetCollection()
     var displayStrategy = new AriesDisplayStrategy(tweetContainer);
-    $.each(tweetCollection.get_displayables(), function(i, t_d) {t_d.render_using(displayStrategy)});
+    var eventSource = new EventSource("/tweets/search");
+    var lastDisplayedTweet = null;
 
-    eventSource.close();
+    setInterval(function () {
+        if (tweetCollection.isNotEmpty()) {
+            if (lastDisplayedTweet!=null) {
+                lastDisplayedTweet.close(displayStrategy);
+            }
+            lastDisplayedTweet = tweetCollection.get_random_displayable_tweet();
+            lastDisplayedTweet.bringToFront(displayStrategy);
+        }
+    }, 2000);
+
+    eventSource.onmessage = function(event) {
+        $('#tweet_objects').empty();
+        var new_tweets = new TweetCollection();
+        new_tweets.add_from(event.data);
+        tweetCollection.merge(new_tweets);
+
+        $.each(new_tweets.get_displayables(), function (i, t_d) {
+            t_d.render_using(displayStrategy)
+        });
+        eventSource.close();
+    }
+
+});
 
 
-  var last_displayed_tweet =  tweetCollection.get_random_displayable_tweet()
-  last_displayed_tweet.bringToFront(displayStrategy);
 
-  setInterval(function(){
-        last_displayed_tweet.close(displayStrategy);
-        last_displayed_tweet = tweetCollection.get_random_displayable_tweet();
-        last_displayed_tweet.bringToFront(displayStrategy);
-    }, 10000);
 
-};
+
+
+

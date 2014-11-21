@@ -92,12 +92,15 @@ function TweetContainer(id, selector)    {
     }
 
     self.removeFromLayout = function(element){
-        //$(id).packery('remove', element);
-        //self.init();
+        $(id).packery('remove', element);
     }
 
     self.cleanUp = function(number){
-        $.each($('#unClean').slice(0, number), function(i, e){self.removeFromLayout(e);})
+        var dirtyElements = $('.dirty');
+        var deleted = dirtyElements.length<=number?dirtyElements.length-1: number-1;
+        $.each($('.dirty').slice(0, deleted), function(i, e){self.removeFromLayout(e);})
+        self.init();
+        return deleted + 1;
     }
 
     self.init();
@@ -153,7 +156,7 @@ function AriesDisplayStrategy(container){
 
 
     this.render = function(tweet, shouldCleanUp) {
-        var image = String.format('<img class="picture_cell {2} {3}" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.picture_cell, self.random_size_style(), tweet.isDirty? "dirty": "");
+        var image = String.format('<img class="picture_cell {2} {3}" id="picture_cell_{0}" src="{1}"/>', tweet.id, tweet.profile_pic_url, self.random_size_style(), tweet.isDirty? "dirty": "");
         container.appendToLayout($(image));
     }
 
@@ -177,6 +180,7 @@ function AriesDisplayStrategy(container){
     this.close = function (displayableTweet){
       last_opened_tweet.close();
       $('#modal_source').remove();
+        displayableTweet.markDirty();
 //      $(displayableTweet.identifier()).addClass('greyed_out');
     }
 
@@ -192,10 +196,16 @@ function TweetDisplayObject(tweet){
     self.user = tweet.user;
     self.message =tweet.message;
     self.profile_pic_url = tweet.picture_cell;
+    self.id =tweet.id;
+
     self.isDirty = false;
 
     this.render_using = function(displayStrategy)    {
-       displayStrategy.render(tweet);
+       displayStrategy.render(self);
+    }
+
+    self.markDirty = function() {
+        $(self.identifier()).addClass('dirty');
     }
 
     this.identifier = function(){
@@ -233,25 +243,28 @@ $(document).ready( function() {var tweetContainer = new TweetContainer('#tweet_o
                 lastDisplayedTweet.close(displayStrategy);
             }
         }
-    }, 2000);
+    }, 5000);
 
     eventSource.onmessage = function(event) {
-        $('#tweet_objects').empty();
+        //$('#tweet_objects').empty();
         var new_tweets = new TweetCollection();
         new_tweets.add_from(event.data);
         tweetCollection.merge(new_tweets);
+        var removed_last = tweetContainer.cleanUp(new_tweets.length());
 
         var displayables = null;
         if (firstRun==true){
             displayables = new_tweets.get_displayables($('#search').data('count'));
+            firstRun = false;
         }
         else {
-            displayables =new_tweets.get_displayables();
+            displayables = new_tweets.get_displayables().slice(0, removed_last-1).slice(0, parseInt($('#search').data('count'))- 1);
         }
+
         $.each(displayables, function (i, t_d) {
             t_d.render_using(displayStrategy)
         });
-        eventSource.close();
+        //eventSource.close();
     }
 
 });

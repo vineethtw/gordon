@@ -37,9 +37,9 @@ end
 
 
 def convert (tweets)
-  result = []
+  responseTweets = []
   tweets.each do |tweet|
-    result << {
+    responseTweets << {
         'id' => tweet.id.to_s,
         'message' =>  tweet.full_text.gsub(/(http|https):\/\/[\w\.:\/]+/, ''),
         'profile_image_uri' => tweet.user.profile_image_uri(size=:original).to_s,
@@ -51,5 +51,5 @@ def convert (tweets)
     }
 
   end
-  result
+  {'tweets' => responseTweets, 'term' => $term, 'items'=> $items}
 end

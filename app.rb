@@ -18,7 +18,7 @@ get '/configure' do
   headers['Access-Control-Request-Method'] = 'GET, OPTIONS, HEAD'
   headers['Access-Control-Allow-Headers'] = 'x-requested-with,Content-Type, Authorization'
 
-  $term =  params['term']
+  $term =  '#' + params['term']
   $items = params['items'].to_i
 end
 
@@ -45,7 +45,7 @@ def convert (tweets)
         'profile_image_uri' => tweet.user.profile_image_uri(size=:original).to_s,
         'profile_image_uri_small' => tweet.user.profile_image_uri.to_s,
         'media_uris'=> tweet.media? ? tweet.media.collect {|m| m.media_uri.to_s if m.is_a?(Twitter::Media::Photo)}: [],
-        'user' => tweet.user,
+        'user' => tweet.user.screen_name,
         'user_id'=> tweet.user.id,
         'created_at' => tweet.created_at
     }

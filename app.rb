@@ -39,6 +39,7 @@ get '/configure' do
 
   $term =  '#' + params['term']
   $items = params['items'].to_i
+  200
 end
 
 post '/admin' do

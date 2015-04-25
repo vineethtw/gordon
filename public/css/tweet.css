@@ -20,6 +20,34 @@ div#tweetImage img{
   position: absolute;
 }
 
+div#twitterHandle{
+    float:left;
+    width: 180px;
+    margin-left:10px;
+    border-radius: 5px;
+    bottom: 15pt;
+    padding: 10px;
+    position: absolute;
+
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+
+    overflow: hidden;
+    border: none;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    font: normal 17px/1 Arial, Helvetica, sans-serif;
+    color: #D6FBFF;
+    text-align: center;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    background: #0199d9;
+    -webkit-box-shadow: 1px 1px 1px 0 rgba(0,0,0,0.3) ;
+    box-shadow: 1px 1px 1px 0 rgba(0,0,0,0.3) ;
+    text-shadow: 1px 1px 1px rgba(0,0,0,1) ;
+}
+
 div#tweetMessage span{
   height: 50px;
 }

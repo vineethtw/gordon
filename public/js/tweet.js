@@ -1,4 +1,4 @@
-function Tweet(id, message, profile_image, profile_image_small, media_url, userId) {
+function Tweet(id, message, profile_image, profile_image_small, media_url, userId, handle) {
     var self = this;
 
     self.id = id;
@@ -8,6 +8,7 @@ function Tweet(id, message, profile_image, profile_image_small, media_url, userI
     self.media_url = null;
     self.processedCount = 0;
     self.userId = userId;
+    self.handle = handle
 
     if (media_url !=null && media_url.length>=1) {
         self.media_url = media_url[0];

@@ -7,10 +7,12 @@
 
         <script id="tweet-message-template" type="text/x-handlebars-template">
             <span>
+                    <div id="twitterHandle">@{{handle}}</div>
                     <div id="tweetImage" >
+
                         <img src="{{profile_image}}" class="animated fadeInUp"/>
                     </div>
-                </span>
+            </span>
             <div id="tweetMessage" class="animated flipInX">
                 <span>
                     <div>
@@ -33,9 +35,6 @@
         <script src="js/tweet.js"></script>
         <script src="js/fetcher.js"></script>
         <script src="js/display.js"></script>
-
-
-
 
     </head>
     <body>

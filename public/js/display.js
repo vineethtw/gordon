@@ -120,7 +120,8 @@ function Tweets(tweetJSON)   {
                                           tweet["profile_image_uri"],
                                           tweet["profile_image_uri_small"],
                                           tweet["media_uris"],
-                                          tweet['user_id']
+                                          tweet['user_id'],
+                                          tweet['user']
                                         );
                     self._tweets.push(tweetObject);
 

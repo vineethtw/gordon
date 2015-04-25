@@ -1,0 +1,25 @@
+div#tweetMessage{
+  font-family: Arial, sans-serif;
+  font-size: 28pt;
+  bottom: 10pt;
+  position: absolute;
+  width:70%;
+  margin-left: 30pt;
+  right: 10pt;
+
+  text-shadow: 3px 1px 6px rgba(164, 160, 142, 1);
+}
+
+
+div#tweetImage img{
+  float:left;
+  width: 100px;
+  margin-left: 230px;
+  border-radius: 5px;
+  bottom: 15pt;
+  position: absolute;
+}
+
+div#tweetMessage span{
+  height: 50px;
+}

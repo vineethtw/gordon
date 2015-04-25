@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="css/display.css">
+        <link rel="stylesheet" type="text/css" href="css/tweet.css">
+        <link rel="stylesheet" type="text/css" href="css/movingclouds.css">
+        <link rel="stylesheet" type="text/css" href="css/animate.css">
+
+        <script id="tweet-message-template" type="text/x-handlebars-template">
+            <span>
+                    <div id="tweetImage" >
+                        <img src="{{profile_image}}" class="animated fadeInUp"/>
+                    </div>
+                </span>
+            <div id="tweetMessage" class="animated flipInX">
+                <span>
+                    <div>
+                        {{message}}
+                    </div>
+                </span>
+            </div>
+        </script>
+
+        <script src="js/tools/jquery-1.11.2.js"></script>
+        <script src="js/tools/packery.pkgd.js"></script>
+        <script src="js/tools/imagesloaded.pkgd.js"></script>
+        <script src="js/tools/jBox.js"></script>
+        <script src="js/tools/handlebars-v3.0.1.js"></script>
+        <script src="js/tools/underscore.js"></script>
+
+
+        <script src="js/tools/utils.js"></script>
+        <script src="js/image.js"></script>
+        <script src="js/tweet.js"></script>
+        <script src="js/fetcher.js"></script>
+        <script src="js/display.js"></script>
+
+
+
+
+    </head>
+    <body>
+        <div id="searchTermContainer"><img id="twitterLogo" src="https://g.twimg.com/Twitter_logo_white.png" />Tweet <span id="searchTerm">[wait, let me find out.] </span></div>
+        <div id="backgroundContainer" class="packery">
+
+        </div>
+        <div id="clouds">
+
+
+        </div>
+    </body>
+</html>

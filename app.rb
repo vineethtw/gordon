@@ -11,15 +11,53 @@ configure do
   end
   $term = '#vodqa'
   $items = 35
+  $username = ENV['XARITA_USERNAME'];
+  $password = ENV['XARITA_PASSWORD'];
 end
 
+
+helpers do
+  def protected!
+    return if authorized?
+    headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
+    halt 401, "Not authorized\n"
+  end
+
+  def authorized?
+    @auth ||=  Rack::Auth::Basic::Request.new(request.env)
+    @auth.provided? and @auth.basic? and @auth.credentials and @auth.credentials == [$username, $password]
+  end
+end
+
+
 get '/configure' do
+  protected!
+
   headers['Access-Control-Allow-Origin'] = '*'
   headers['Access-Control-Request-Method'] = 'GET, OPTIONS, HEAD'
   headers['Access-Control-Allow-Headers'] = 'x-requested-with,Content-Type, Authorization'
 
   $term =  '#' + params['term']
   $items = params['items'].to_i
+end
+
+post '/admin' do
+  headers['Access-Control-Allow-Origin'] = '*'
+  headers['Access-Control-Request-Method'] = 'GET, OPTIONS, HEAD'
+  headers['Access-Control-Allow-Headers'] = 'x-requested-with,Content-Type, Authorization'
+
+  p params.keys.to_s
+  p params.has_key? :username
+  p params.has_key? 'username'
+
+
+  halt 400, 'How do I know, how do I know..?' unless params.has_key? 'username' and params.has_key? 'password'
+  halt 400, 'You are forgetting something, kiddo.'  unless params.has_key? 'term' and params.has_key? 'items'
+  halt 401, 'Ah ah ah, you did not say the magic word!' unless params['username'].eql? $username and params['password'].eql? $password
+
+  $term = '#'+ params['term']
+  $items = params['items'].to_i
+
 end
 
 get '/search' do
